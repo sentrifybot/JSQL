@@ -22,6 +22,9 @@ class JSQL:
         create_table_pattern = r"^CREATE TABLE (\w+)$"
         insert_into_pattern = r"^INSERT INTO (\w+) VALUES (\{.*\})$"
         select_from_pattern = r"^SELECT \* FROM (\w+)( WHERE (.+))?$"
+        delete_from_pattern = r"^DELETE FROM (\w+)( WHERE (.+))?$"
+        delete_table_pattern = r"^DELETE TABLE (\w+)$"
+        modify_pattern = r"^MODIFY (\w+) SET (\{.*\})( WHERE (.+))?$"
 
         if re.match(create_table_pattern, command, re.IGNORECASE):
             match = re.match(create_table_pattern, command, re.IGNORECASE)
@@ -43,10 +46,49 @@ class JSQL:
             else:
                 search_criteria = {}
             return self.query_table(table_name, search_criteria)
+        elif re.match(delete_from_pattern, command, re.IGNORECASE):
+            match = re.match(delete_from_pattern, command, re.IGNORECASE)
+            table_name, _, search_criteria_str = match.groups()
+            if search_criteria_str:
+                key, value = search_criteria_str.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip("'\"")
+                search_criteria = {key: value}
+            else:
+                search_criteria = {}
+            return self.delete_data(table_name, search_criteria)
+        elif re.match(delete_table_pattern, command, re.IGNORECASE):
+            match = re.match(delete_table_pattern, command, re.IGNORECASE)
+            table_name = match.group(1)
+            return self.delete_table(table_name)
+        elif re.match(modify_pattern, command, re.IGNORECASE):
+            match = re.match(modify_pattern, command, re.IGNORECASE)
+            table_name, data_str, _, search_criteria_str = match.groups()
+            data = json.loads(data_str)
+            if search_criteria_str:
+                key, value = search_criteria_str.split("=", 1)
+                key = key.strip()
+                value = value.strip().strip("'\"")
+                search_criteria = {key: value}
+            else:
+                search_criteria = {}
+            return self.modify_data(table_name, data, search_criteria)
         elif command.strip().upper() == "FLUSH":
-          return self.flush_database()
+            return self.flush_database()
         else:
             return "Invalid JSQL command syntax."
+
+    def delete_data(self, table_name, search_criteria):
+        if table_name not in self.database:
+            return f"Table '{table_name}' does not exist."
+
+        rows_to_delete = [row for row in self.database[table_name] if all(row.get(k) == v for k, v in search_criteria.items())]
+        if not rows_to_delete:
+            return "No matching rows found to delete."
+
+        self.database[table_name] = [row for row in self.database[table_name] if row not in rows_to_delete]
+        self.save_database()
+        return f"{len(rows_to_delete)} row(s) deleted successfully."
 
     def create_table(self, table_name):
         if table_name in self.database:
@@ -64,11 +106,33 @@ class JSQL:
 
     def query_table(self, table_name, search_criteria):
         if table_name not in self.database:
-          return f"Table '{table_name}' does not exist."
+            return f"Table '{table_name}' does not exist."
         results = [row for row in self.database[table_name] if all(row.get(k) == v for k, v in search_criteria.items())]
         return results
 
     def flush_database(self):
-      self.database = {}
-      self.save_database()
-      return "All tables have been removed from the database."
+        self.database = {}
+        self.save_database()
+        return "All tables have been removed from the database."
+
+    def delete_table(self, table_name):
+        if table_name not in self.database:
+            return f"Table '{table_name}' does not exist."
+
+        del self.database[table_name]
+        self.save_database()
+        return f"Table '{table_name}' deleted successfully."
+
+    def modify_data(self, table_name, data, search_criteria):
+        if table_name not in self.database:
+            return f"Table '{table_name}' does not exist."
+
+        rows_to_modify = [row for row in self.database[table_name] if all(row.get(k) == v for k, v in search_criteria.items())]
+        if not rows_to_modify:
+            return "No matching rows found to modify."
+
+        for row in rows_to_modify:
+            row.update(data)
+
+        self.save_database()
+        return f"{len(rows_to_modify)} row(s) modified successfully."

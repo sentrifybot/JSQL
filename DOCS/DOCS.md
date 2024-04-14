@@ -7,6 +7,9 @@ The JSQL Command Line Interface (CLI) allows users to interact with the JSQL dat
 - `CREATE TABLE <table_name>`: Creates a new table in the database.
 - `INSERT INTO <table_name> VALUES <json_data>`: Inserts a new record into the specified table. The data must be in JSON format.
 - `SELECT * FROM <table_name> WHERE <condition>`: Retrieves records from a table that meet the specified condition.
+- `DELETE FROM <table_name> WHERE <condition>`: Deletes records from a table that meet the specified condition.
+- `DELETE TABLE <table_name>`: Deletes an entire table from the database.
+- `MODIFY <table_name> SET <json_data> WHERE <condition>`: Modifies data in a table based 
 - `FLUSH`: Removes all tables and their data from the database.
 - `HELP`: Displays help information about available commands.
 - `QUIT`: Exits the CLI.

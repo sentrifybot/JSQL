@@ -4,4 +4,6 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| v0.0.1-alpha   | ✅: |
+| v0.0.1-alpha   | :x: |
+| v0.0.1-alpha   | :x: |
+| v0.0.1-alpha   | ✅ |

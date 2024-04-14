@@ -14,6 +14,9 @@ Available Commands:
     CREATE TABLE <table_name> - Creates a new table.
     INSERT INTO <table_name> VALUES <json_data> - Inserts data into a table.
     SELECT * FROM <table_name> WHERE <condition> - Queries data from a table.
+    DELETE FROM <table_name> WHERE <condition> - Deletes data from a table based on a condition.
+    DELETE TABLE <table_name> - Deletes an entire table from the database.
+    MODIFY <table_name> SET <json_data> WHERE <condition> - Modifies data in a table based 
     FLUSH - Removes all tables from the database.
     HELP - Displays this help message.
     QUIT - Exits the CLI.
