@@ -63,12 +63,12 @@ class JSQL:
         return "Data inserted successfully."
 
     def query_table(self, table_name, search_criteria):
-        if table_name not in this.database:
-            return f"Table '{table_name}' does not exist."
-        results = [row for row in this.database[table_name] if all(row.get(k) == v for k, v in search_criteria.items())]
+        if table_name not in self.database:
+          return f"Table '{table_name}' does not exist."
+        results = [row for row in self.database[table_name] if all(row.get(k) == v for k, v in search_criteria.items())]
         return results
 
     def flush_database(self):
-      this.database = {}
-      this.save_database()
+      self.database = {}
+      self.save_database()
       return "All tables have been removed from the database."
